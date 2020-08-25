@@ -5,3 +5,4 @@
 現在のプラグイン一覧：
 
 - [EventComponent](https://github.com/cji3bp62000/RPGtkool-plugins/tree/master/plugin-list/EventComponent) (pre-release)
+- [FilterControllerMZ](https://github.com/cji3bp62000/RPGtkool-plugins/tree/master/plugin-list/FilterControllerMZ) (beta-release)
