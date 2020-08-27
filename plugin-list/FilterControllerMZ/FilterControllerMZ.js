@@ -184,6 +184,8 @@
  * @value Tile
  * @option タイル＆背景
  * @value TileAndParallax
+ * @option 背景
+ * @value Parallax
  * @option 全キャラ
  * @value Chars
  * @option 特定キャラ(id)
@@ -508,6 +510,8 @@
  * @value Tile
  * @option TileAndParallax
  * @value TileAndParallax
+ * @option Parallax
+ * @value Parallax
  * @option Chars
  * @value Chars
  * @option SepcificChar
@@ -848,6 +852,7 @@ function Filter_Controller() {
 	Filter_Controller.targetType["TileAndCharsAndParallax"] = "TileAndCharsAndParallax";
 	Filter_Controller.targetType["Tile"] = "Tile";
 	Filter_Controller.targetType["TileAndParallax"] = "TileAndParallax";
+	Filter_Controller.targetType["Parallax"] = "Parallax";
 	Filter_Controller.targetType["Chars"] = "Chars";
 	Filter_Controller.targetType["SepcificChar"] = "SepcificChar";
 	Filter_Controller.targetType["Pictures"] = "Pictures";
@@ -1723,6 +1728,14 @@ function Filter_Controller() {
 			if (this._spriteset && this._spriteset._tilemap) {
 				targets.push(this._spriteset._tilemap._lowerLayer);
 				targets.push(this._spriteset._tilemap._upperLayer);
+				targets.push(this._spriteset._parallax);
+			}
+			return targets;
+		};
+
+		targetGetter[Type.Parallax] = function(targetIds) {
+			const targets = [];
+			if (this._spriteset) {
 				targets.push(this._spriteset._parallax);
 			}
 			return targets;
