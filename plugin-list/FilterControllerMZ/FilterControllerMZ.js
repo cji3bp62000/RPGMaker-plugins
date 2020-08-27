@@ -289,6 +289,7 @@
  * @desc アニメーションの時間
  * @type number
  * @min 1
+ * @default 1
  * 
  * @command clearMoveFilterQ
  * @text フィルターパラメータ連続移動クリア
@@ -325,6 +326,7 @@
  * @desc 全部のフィルターを削除するコマンド
  * 
  * @command ----------------
+ * @desc -----
  * 
  * @command globalEnableFilter
  * @text フィルター全体非表示
@@ -527,8 +529,8 @@
  * @min -10
  * 
  * @arg positionReferenceTargetId
- * @text position Reference Target Id
- * @desc position reference. (blank):screen  -1:player  0:this event  1~:event#  screen:screen(this map only)
+ * @text Position Reference Target Id
+ * @desc position reference. (blank):screen  -1:player  0:this event  1~:event#id  screen:screen (this map only)
  * 
  * 
  * 
@@ -598,6 +600,7 @@
  * @desc movement duration.
  * @type number
  * @min 1
+ * @default 1
  * 
  * @command clearMoveFilterQ
  * @desc clear the movement queue.
@@ -626,6 +629,7 @@
  * @desc erase all filter.
  * 
  * @command ----------------
+ * @desc -----
  * 
  * @command globalEnableFilter
  * @desc set the global enableness of filters. Note this won't overwrite each filter's own enableness.
@@ -756,8 +760,6 @@ function Filter_Controller() {
 	});
 
 	PluginManager.registerCommand(pluginName, "moveFilter", args => {
-		console.log(typeof args.filterParameters);
-		console.log(args.filterParameters);
 		const filterId = String(args.filterId);
 		const filterParams = parseFilterParams(JSON.parse(args.filterParameters));
 		const duration = Number(args.duration) || 1;
@@ -1020,9 +1022,11 @@ function Filter_Controller() {
 	};
 	
 	Filter_Controller.prototype.createDisplacement = function() {
-		const s = new Sprite(ImageManager.loadPicture(TKMDisplacementMap));
-		const f = new PIXI.filters.DisplacementFilter(s);
-		SceneManager._scene.addChild(s);
+		if (!SceneManager._scene._TKMDisplacementMap) {
+			SceneManager._scene._TKMDisplacementMap = new Sprite(ImageManager.loadPicture(TKMDisplacementMap));
+			SceneManager._scene.addChild(SceneManager._scene._TKMDisplacementMap);
+		}
+		const f = new PIXI.filters.DisplacementFilter(SceneManager._scene._TKMDisplacementMap);
 		return f;
 	};
 
@@ -1071,7 +1075,6 @@ function Filter_Controller() {
 	
 	_updateFilterHandler["bulgepinch"] = function(filter, cp) {
 		const loc = this.getCharLoc();
-		console.log(loc[0]);
 		filter.center = [ (loc[0] + cp[0]) / Graphics.width , (loc[1] + cp[1]) / Graphics.height];
 		filter.radius   = cp[2];
 		filter.strength = cp[3];
@@ -1370,7 +1373,7 @@ function Filter_Controller() {
 		const lastFilterIndex = this._filterConArr.findIndex(fc => fc._id == id);
 		if (lastFilterIndex >= 0) {
 			this._filterConArr[lastFilterIndex].erase();
-			this._filterConArr.splice(lastFilterIndex);
+			this._filterConArr.splice(lastFilterIndex, 1);
 		}
 		let mapId = typeof(posRefTargetId) === "number" && !$gameParty.inBattle() ? this.mapId() : null;
 		const fc = new Filter_Controller( filter, id, targetType, targetIds, posRefTargetId, mapId);
@@ -1843,7 +1846,7 @@ function Filter_Controller() {
 			const erased = filter._controller.isErased();
 			if (erased) this.removeTKMFilterFromTarget(filter);
 			return !erased;
-		});
+		}, this);
 		// create
 		$gameMap._filterConArr.forEach(fc => {
 			if (!this._TKMFilters.some(f => f._controller == fc)) {
