@@ -1,7 +1,10 @@
 //=============================================================================
 // FilterControllerMZ.js
 // ----------------------------------------------------------------------------
-// Copyright (c) 2020 Tsukimi
+// Copyright (c) 2020 Tsukimi. All rights reserved.
+// 
+// This work is licensed under the terms of the MIT license.  
+// For a copy, see <https://opensource.org/licenses/MIT>.
 // ----------------------------------------------------------------------------
 // Version
 // 0.9.0 2020/08/25 FilterController MZ version
