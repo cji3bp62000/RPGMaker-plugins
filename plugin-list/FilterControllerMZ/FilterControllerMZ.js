@@ -203,8 +203,8 @@
  * @text 適用対象id
  * @desc 適用対象が特定のイベント / ピクチャの時のid番号。（複数可）
  * それ以外は空欄のままにしてください
- * @type number[]
- * @min -10
+ * @type string[]
+ * @default []
  * 
  * @arg positionReferenceTargetId
  * @text 位置参照対象
@@ -269,8 +269,7 @@
  * @arg duration
  * @text 時間
  * @desc アニメーションの時間
- * @type number
- * @min 1
+ * @type string
  * @default 1
  * 
  * 
@@ -291,8 +290,7 @@
  * @arg duration
  * @text 時間
  * @desc アニメーションの時間
- * @type number
- * @min 1
+ * @type string
  * @default 1
  * 
  * @command clearMoveFilterQ
@@ -530,8 +528,8 @@
  * 
  * @arg targetIds
  * @desc when choosed "SpecificChar/Picture", specify the event/picture(s) id here. (multiple OK)
- * @type number[]
- * @min -10
+ * @type string[]
+ * @default []
  * 
  * @arg positionReferenceTargetId
  * @text Position Reference Target Id
@@ -584,8 +582,7 @@
  * 
  * @arg duration
  * @desc movement duration.
- * @type number
- * @min 1
+ * @type string
  * @default 1
  * 
  * 
@@ -603,8 +600,7 @@
  * 
  * @arg duration
  * @desc movement duration.
- * @type number
- * @min 1
+ * @type string
  * @default 1
  * 
  * @command clearMoveFilterQ
@@ -823,7 +819,7 @@ function Filter_Controller() {
 			const varId = Number(string.slice(1)) || 0;
 			const num = $gameVariables.value(varId);
 			if (isNaN(num) || num == null) return null;
-			if (isInteger) return Mathf.round(num);
+			if (isInteger) return Math.round(num);
 			else return num;
 		}
 		if (string[0] === 'r') {
