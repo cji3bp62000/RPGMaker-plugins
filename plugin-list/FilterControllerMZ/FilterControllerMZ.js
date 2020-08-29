@@ -712,7 +712,7 @@ function Filter_Controller() {
 
 		const idTextArray = JSON.parse(idTextArrayText), targetIdArray = [];
 		for (let i = 0; i < idTextArray.length; i++) {
-			const num = parseNumberOrDefault(idTextArray[i]);
+			const num = parseNumberOrDefault(idTextArray[i], true);
 			targetIdArray.push(parseTargetId(num, interpreter));
 		}
 		return targetIdArray;
@@ -750,7 +750,7 @@ function Filter_Controller() {
 	const parseFilterPosRefId = function(text, interpreter) {
 		if (text == "") return null;
 		if (text == "screen") return 0; // 0 = filter-on-screen
-		const num = parseNumberOrDefault(text);
+		const num = parseNumberOrDefault(text, true);
 		return parseTargetId(num, interpreter);
 	}
 
@@ -769,14 +769,14 @@ function Filter_Controller() {
 	PluginManager.registerCommand(pluginName, "moveFilter", args => {
 		const filterId = String(args.filterId);
 		const filterParams = parseFilterParams(JSON.parse(args.filterParameters));
-		const duration = parseNumberOrDefault(args.duration) || 1;
+		const duration = parseNumberOrDefault(args.duration, true) || 1;
 		$gameMap.moveFilter(filterId, filterParams, duration);
 	});
 
 	PluginManager.registerCommand(pluginName, "moveFilterQ", args => {
 		const filterId = String(args.filterId);
 		const filterParams = parseFilterParams(JSON.parse(args.filterParameters));
-		const duration = parseNumberOrDefault(args.duration) || 1;
+		const duration = parseNumberOrDefault(args.duration, true) || 1;
 		$gameMap.moveFilterQueue(filterId, filterParams, duration);
 	});
 
