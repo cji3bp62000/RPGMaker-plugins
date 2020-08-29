@@ -712,7 +712,8 @@ function Filter_Controller() {
 
 		const idTextArray = JSON.parse(idTextArrayText), targetIdArray = [];
 		for (let i = 0; i < idTextArray.length; i++) {
-			targetIdArray.push(parseTargetId(idTextArray[i], interpreter));
+			const num = parseNumberOrDefault(idTextArray[i]);
+			targetIdArray.push(parseTargetId(num, interpreter));
 		}
 		return targetIdArray;
 	 }
@@ -749,7 +750,8 @@ function Filter_Controller() {
 	const parseFilterPosRefId = function(text, interpreter) {
 		if (text == "") return null;
 		if (text == "screen") return 0; // 0 = filter-on-screen
-		return parseTargetId(text, interpreter);
+		const num = parseNumberOrDefault(text);
+		return parseTargetId(num, interpreter);
 	}
 
 	PluginManager.registerCommand(pluginName, "setFilter", args => {
@@ -767,14 +769,14 @@ function Filter_Controller() {
 	PluginManager.registerCommand(pluginName, "moveFilter", args => {
 		const filterId = String(args.filterId);
 		const filterParams = parseFilterParams(JSON.parse(args.filterParameters));
-		const duration = Number(args.duration) || 1;
+		const duration = parseNumberOrDefault(args.duration) || 1;
 		$gameMap.moveFilter(filterId, filterParams, duration);
 	});
 
 	PluginManager.registerCommand(pluginName, "moveFilterQ", args => {
 		const filterId = String(args.filterId);
 		const filterParams = parseFilterParams(JSON.parse(args.filterParameters));
-		const duration = Number(args.duration) || 1;
+		const duration = parseNumberOrDefault(args.duration) || 1;
 		$gameMap.moveFilterQueue(filterId, filterParams, duration);
 	});
 
@@ -795,7 +797,7 @@ function Filter_Controller() {
 
 	PluginManager.registerCommand(pluginName, "setFilterSpeed", args => {
 		const filterId = String(args.filterId);
-		const filterSpeed = Number(args.filterSpeed) || 0;
+		const filterSpeed = parseNumberOrDefault(args.filterSpeed) || 0;
 		$gameMap.setFilterAddiTime(filterId, filterSpeed);
 	});
 
@@ -811,21 +813,33 @@ function Filter_Controller() {
 	});
 	
 	// string -> number / undefined
-	function parseNumberOrDefault(string) {
+	function parseNumberOrDefault(string, isInteger) {
 		if (string == null || string === '' || string === 'x') return null;
 
+		isInteger = !!isInteger;
 		string = string.replace(' ', '');
+
 		if (string[0] === 'v') {
-			let num = Number(string.slice(1)) || 0;
-			return $gameVariables.value(num);
+			const varId = Number(string.slice(1)) || 0;
+			const num = $gameVariables.value(varId);
+			if (isNaN(num) || num == null) return null;
+			if (isInteger) return Mathf.round(num);
+			else return num;
 		}
 		if (string[0] === 'r') {
 			let numPair = string.slice(1).split('~');
-			let num1 = parseNumberOrDefault(numPair[0]) || 0, 
-				num2 = parseNumberOrDefault(numPair[1]) || 0;
-			return (Math.random() * (num2 - num1) + num1);
+			// typo saving
+			if (numPair.length < 2) numPair = string.slice(1).split('-'); 
+			let min = parseNumberOrDefault(numPair[0]) || 0, 
+				max = parseNumberOrDefault(numPair[1]) || 0;
+			if (min > max) {
+				let temp = min; min = max; max = temp;
+			}
+			if (isInteger) return Math.floor((Math.random() * (max + 1 - min) + min));
+			else return (Math.random() * (max - min) + min);
 		}
-		const num = Number(string) || 0;
+		const num = Number(string);
+		if (isNaN(num) || num == null) return null;
 		return num;
 	};
 	
