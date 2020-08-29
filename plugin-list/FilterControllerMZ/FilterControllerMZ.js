@@ -68,6 +68,7 @@
  * タイル＆全キャラ＆背景　：TileAndCharsAndParallax
  * タイル　　　　　　　　　：Tile
  * タイル＆背景　　　　　　：TileAndParallax
+ * 背景　　　　　　　　　　：Parallax
  * 全キャラ　　　　　　　　：Chars
  * 特定キャラ（id）　　　　：SepcificChar
  * 全ピクチャ　　　　　　　：Pictures
@@ -402,6 +403,7 @@
  * TileAndCharsAndParallax
  * Tile
  * TileAndParallax
+ * Parallax
  * Chars
  * SepcificChar
  * Pictures
@@ -1631,10 +1633,13 @@ function Filter_Controller() {
 	};
 
 	const _fullScreenTargetTypes = [
+		Filter_Controller.targetType.FullScreen,
+		Filter_Controller.targetType.FullScreenWithWindow,
 		Filter_Controller.targetType.TileAndChars,
 		Filter_Controller.targetType.TileAndCharsAndParallax,
 		Filter_Controller.targetType.Tile,
 		Filter_Controller.targetType.TileAndParallax,
+		Filter_Controller.targetType.Parallax,
 	];
 	
 	Scene_Base.prototype.applyTKMFilterToTarget = function(filter) {
@@ -1678,7 +1683,7 @@ function Filter_Controller() {
 		if (typeof(typeTargetGetter) !== "function") {
 			console.warn("指定された適用対象タイプが存在していない。大・小文字 / 書き間違いにご注意ください");
 			console.warn("The specified target type does not exist. Is there any upper-lower cases mismatch or typos?");
-			return targets;
+			return [];
 		}
 
 		return typeTargetGetter.call(this, targetIds);
