@@ -1,12 +1,12 @@
 class EventComponent
 {
-	_gameEvent = null;
+	_gameEventId = null;
 	_coroutineRunners = [];
 	
 	initVariables = [];
 	
-	constructor(targetEvent, initParamList) {
-		this._event = targetEvent;
+	constructor(targetEventId, initParamList) {
+		this._gameEventId = targetEventId;
 		_initializeVariables(initParamList);
 	}
 	
@@ -18,15 +18,15 @@ class EventComponent
 	}
 
 	get gameEvent() {
-		return this._gameEvent;
+		return $gameMap.event(this._gameEventId);
 	}
 	
 	getComponent(componentType) {
-		return this._gameEvent.getComponent(componentType);
+		return this.gameEvent.getComponent(componentType);
 	}
 	
 	getComponents(componentType) {
-		return this._gameEvent.getComponents(componentType);
+		return this.gameEvent.getComponents(componentType);
 	}
 	
 	startCoroutine(iterator) {
@@ -108,7 +108,7 @@ class CoroutineRunner {
 		}
 		
 		let result = _currentCoroutine.next();
-		if (result.value != null && result.value != undefined) {
+		if (result.value != null) {
 			_coroutineStack.push(_currentCoroutine);
 			_currentCoroutine = result.value;
 		}
@@ -277,7 +277,7 @@ class UpdateTime {
 			}
 	
 			try {
-				let newComponent = new componentClass(this, initParams);
+				let newComponent = new componentClass(this._eventId, initParams);
 				this._eventComponents.push(newComponent);
 			} catch(e) {
 				console.warn("can't create component " + componentName + " for event #" + this._eventId);
