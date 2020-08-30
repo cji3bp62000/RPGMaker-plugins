@@ -7,6 +7,7 @@
 // For a copy, see <https://opensource.org/licenses/MIT>.
 // ----------------------------------------------------------------------------
 // Version
+// 0.9.1 2020/08/30 Fix some small bugs
 // 0.9.0 2020/08/25 FilterController MZ version
 //=============================================================================
 
@@ -1880,17 +1881,20 @@ function Filter_Controller() {
 	//  拡張するプロパティを定義します。
 	//=======================
 
-	const _Window_Options_makeCommandList = Window_Options.prototype.makeCommandList;
-	Window_Options.prototype.makeCommandList = function() {
-		_Window_Options_makeCommandList.apply(this, arguments);
-		this.addTKMFilterOptions();
-	};
+	const _showInOptionMenu = getParamBoolean("enabledAll-ShowInOptionMenu");
+	const _optionMenuText = getParamString("enabledAll-Text");
+
+	if (_showInOptionMenu) {
+		const _Window_Options_makeCommandList = Window_Options.prototype.makeCommandList;
+		Window_Options.prototype.makeCommandList = function() {
+			_Window_Options_makeCommandList.apply(this, arguments);
+			this.addTKMFilterOptions();
+		};
 	
-	Window_Options.prototype.addTKMFilterOptions = function() {
-		if (getParamBoolean("enabledAll-ShowInOptionMenu")) {
-			this.addCommand(getParamString("enabledAll-Text"), 'TKMFilterEnabledAll');
-		}
-	};
+		Window_Options.prototype.addTKMFilterOptions = function() {
+			this.addCommand(_optionMenuText, 'TKMFilterEnabledAll');
+		};
+	}
 	
 	Object.defineProperty(ConfigManager, 'TKMFilterEnabledAll', {
 		get: function() {
