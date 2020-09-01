@@ -500,152 +500,157 @@ $TKMvar.tachie.MaxLayer = 10; // 0~9; このプラグインをカスタマイズ
         }
         // end of function
     };
- 
-    var _Game_Interpreter_pluginCommand = Game_Interpreter.prototype.pluginCommand;
-    Game_Interpreter.prototype.pluginCommand = function (command, args) {
-        _Game_Interpreter_pluginCommand.call(this, command, args);
-        
-        // commandの処理
-        switch ((command || '')) {
-            case 'tachie_Register':         // tachie_Register [キャラ名]
-                var charName = args[0];
-                // 取得
-                var CharList = $TKMvar.tachie.CharList;
-                var MaxLayer = $TKMvar.tachie.MaxLayer;
-                CharList[charName] = []; // 新しいキャラのパーツ番号の配列を作る
-                
-                for(var i = 0; i < MaxLayer; i++) {
-                    CharList[charName][i] = 0; // すべてのパーツのデフォルト値は0
-                }
-                break;
-                
-            case 'tachie_CP':               // tachie_CP [キャラ名] [レイヤー番号] [パーツ番号]
-            case 'tachie_ChangePart':       // tachie_ChangePart [キャラ名] [レイヤー番号] [パーツ番号]
-                if( !(args[0] in $TKMvar.tachie.CharList) ) break; // そんなキャラ名が登録されなかったら無視する
-                
-                // 取得
-                var CharList = $TKMvar.tachie.CharList;
-                var MaxLayer = $TKMvar.tachie.MaxLayer;
-                var PicData = $TKMvar.tachie.PicData;
-                
-                // パーツの名前に対応するレイヤーを探す
-                var layerNum = -1;
-                for(var i = 0; i < MaxLayer; i++) {
-                    if($TKMvar.tachie.partsNameArr[i] === args[1]) {
-                        layerNum = i; break;
-                    }
-                }
-                if(layerNum === -1) break; // そんなレイヤー名がなかったら無視する
-                
-                var partNum = parseInt(args[2], 10) || 0;
-                if(CharList[args[0]][layerNum] === partNum) break; // パーツが同じなら変更する必要ない
-                CharList[args[0]][layerNum] = partNum;
-                
-                // ついでにそのパーツのbitmapをキャッシュしよう
-                for(var i = 0; i < PicData.length; i++) {
-                   if(PicData[i]["char"] == args[0]) {
-                       // bitmap [] の存在確認
-                       if(!PicData[i]["bitmap"]) $TKMvar.tachie.preloadBitmap(i);
-                       if(partNum === 0) PicData[i]["bitmap"][layerNum] = null;
-                       else PicData[i]["bitmap"][layerNum] = 
-                           ImageManager.loadPicture(args[0] + "_" + $TKMvar.tachie.partsNameArr[layerNum] + "_" + partNum, 0);
-                   }
-                }
-                
-                break;
-                
-            case 'tachie_SetChar':          // tachie_SetChar [立ち絵番号] [キャラ名]
-                var tachieNum = parseInt(args[0], 10) || 0; // 立ち絵1か2か、それとも…
-                tachieNum--; // データ上は0から
-                if(tachieNum === -1) break;
-                
-                // 取得
-                var CharList = $TKMvar.tachie.CharList;
-                var MaxLayer = $TKMvar.tachie.MaxLayer;
-                var PicData = $TKMvar.tachie.PicData;
-                
-                if($TKMvar.tachie.PicData[tachieNum]["char"] === args[1]) break; // キャラが同じなら変更する必要ない
-                
-                if( args[1] in CharList ) {
-                    if(PicData.length > tachieNum) {
-                        PicData[tachieNum]["char"] = args[1];
-                        
-                        PicData[tachieNum]["bitmap"] = null;
-                        PicData[tachieNum]["bitmap"] = [];
-                        
-                        // preload bitmap
-                        /*
-                        var partList= $TKMvar.tachie.CharList[args[1]];
-                        for(var i = 0; i < $TKMvar.tachie.MaxLayer; i++) {
-                            if(partList[i] === 0) {
-                                $TKMvar.tachie.PicData[tachieNum]["bitmap"][i] = null;
-                                continue;
-                            }
-                            else {
-                                $TKMvar.tachie.PicData[tachieNum]["bitmap"][i] = ImageManager.loadPicture(args[1] + "_" + $TKMvar.tachie.partsNameArr[i] + "_" + partList[i], 0);
-                            }
-                            
-                        }*/
-                        $TKMvar.tachie.preloadBitmap(tachieNum);
-                        
-                    }
-                }
-                break;
-                
-            case 'tachie_Draw':             // tachie_Draw [立ち絵番号] [オプション]
-                var tachieNum = parseInt(args[0], 10) || 0; // 立ち絵1か2か、それとも…
-                tachieNum--; // データ上は0から
-                if(tachieNum === -1) break;
-                if($TKMvar.tachie.PicData.length <= tachieNum) break;
-                if(!$TKMvar.tachie.PicData[tachieNum]["char"]) break;
-                
-                // 取得
-                var CharList = $TKMvar.tachie.CharList;
-                var MaxLayer = $TKMvar.tachie.MaxLayer;
-                var PicData = $TKMvar.tachie.PicData;
-                
-                var pictureId = PicData[tachieNum]["picNum"];
-                // ピクチャの名前を設定: "TKMtachie_[キャラ]_[すべてのパーツ番号]"
-                var char = PicData[tachieNum]["char"];
-                var name = "TKMtachie_" + char + "_";
-                var partList = CharList[char];
-                for(var i = 0; i < $TKMvar.tachie.MaxLayer; i++) {
-                    name += partList[i];
-                }
-                var x = $TKMvar.tachie.PicData[tachieNum]["x"];
-                var y = $TKMvar.tachie.PicData[tachieNum]["y"];
-                // TODO
-                
-                // オプション
-                if(!args[1]) {
-                $gameScreen.showPicture(pictureId, name, 0, x, y, 85, 85, 255, 0);
-                }
-                else{
-                    switch(args[1].toUpperCase()) {
-                        case 'INV':
-                        case 'INVISIBLE':
-                            $gameScreen.showPicture(pictureId, name, 0, x, y, 85, 85, 0, 0);
-                            break;
-                        
-                        default:
-                            $gameScreen.showPicture(pictureId, name, 0, x, y, 85, 85, 255, 0);
-                            break;
-                    }
-                }
-                break;
-                
-            case 'tachie_Clear':            // tachie_Clear [立ち絵番号]
-                var tachieNum = parseInt(args[0], 10) || 0; // 立ち絵1か2か、それとも…
-                tachieNum--; // データ上は0から
-                if(tachieNum === -1) break;
-                if($TKMvar.tachie.PicData.length <= tachieNum) break;
-                
-                $gameScreen.erasePicture($TKMvar.tachie.PicData[tachieNum]["picNum"]);
-                // $TKMvar.tachie.PicData[tachieNum]["char"] = "";
-                break;
-        }
-        
-    };
+
+	if (Utils && Utils.RPGMAKER_NAME === "MZ") {
+		
+	}
+	else if (Utils && Utils.RPGMAKER_NAME === "MV") {
+		
+		var _Game_Interpreter_pluginCommand = Game_Interpreter.prototype.pluginCommand;
+		Game_Interpreter.prototype.pluginCommand = function (command, args) {
+			_Game_Interpreter_pluginCommand.call(this, command, args);
+			
+			// commandの処理
+			switch ((command || '')) {
+				case 'tachie_Register':         // tachie_Register [キャラ名]
+					var charName = args[0];
+					// 取得
+					var CharList = $TKMvar.tachie.CharList;
+					var MaxLayer = $TKMvar.tachie.MaxLayer;
+					CharList[charName] = []; // 新しいキャラのパーツ番号の配列を作る
+					
+					for(var i = 0; i < MaxLayer; i++) {
+						CharList[charName][i] = 0; // すべてのパーツのデフォルト値は0
+					}
+					break;
+					
+				case 'tachie_CP':               // tachie_CP [キャラ名] [レイヤー番号] [パーツ番号]
+				case 'tachie_ChangePart':       // tachie_ChangePart [キャラ名] [レイヤー番号] [パーツ番号]
+					if( !(args[0] in $TKMvar.tachie.CharList) ) break; // そんなキャラ名が登録されなかったら無視する
+					
+					// 取得
+					var CharList = $TKMvar.tachie.CharList;
+					var MaxLayer = $TKMvar.tachie.MaxLayer;
+					var PicData = $TKMvar.tachie.PicData;
+					
+					// パーツの名前に対応するレイヤーを探す
+					var layerNum = -1;
+					for(var i = 0; i < MaxLayer; i++) {
+						if($TKMvar.tachie.partsNameArr[i] === args[1]) {
+							layerNum = i; break;
+						}
+					}
+					if(layerNum === -1) break; // そんなレイヤー名がなかったら無視する
+					
+					var partNum = parseInt(args[2], 10) || 0;
+					if(CharList[args[0]][layerNum] === partNum) break; // パーツが同じなら変更する必要ない
+					CharList[args[0]][layerNum] = partNum;
+					
+					// ついでにそのパーツのbitmapをキャッシュしよう
+					for(var i = 0; i < PicData.length; i++) {
+					   if(PicData[i]["char"] == args[0]) {
+						   // bitmap [] の存在確認
+						   if(!PicData[i]["bitmap"]) $TKMvar.tachie.preloadBitmap(i);
+						   if(partNum === 0) PicData[i]["bitmap"][layerNum] = null;
+						   else PicData[i]["bitmap"][layerNum] = 
+							   ImageManager.loadPicture(args[0] + "_" + $TKMvar.tachie.partsNameArr[layerNum] + "_" + partNum, 0);
+					   }
+					}
+					
+					break;
+					
+				case 'tachie_SetChar':          // tachie_SetChar [立ち絵番号] [キャラ名]
+					var tachieNum = parseInt(args[0], 10) || 0; // 立ち絵1か2か、それとも…
+					tachieNum--; // データ上は0から
+					if(tachieNum === -1) break;
+					
+					// 取得
+					var CharList = $TKMvar.tachie.CharList;
+					var MaxLayer = $TKMvar.tachie.MaxLayer;
+					var PicData = $TKMvar.tachie.PicData;
+					
+					if($TKMvar.tachie.PicData[tachieNum]["char"] === args[1]) break; // キャラが同じなら変更する必要ない
+					
+					if( args[1] in CharList ) {
+						if(PicData.length > tachieNum) {
+							PicData[tachieNum]["char"] = args[1];
+							
+							PicData[tachieNum]["bitmap"] = null;
+							PicData[tachieNum]["bitmap"] = [];
+							
+							// preload bitmap
+							/*
+							var partList= $TKMvar.tachie.CharList[args[1]];
+							for(var i = 0; i < $TKMvar.tachie.MaxLayer; i++) {
+								if(partList[i] === 0) {
+									$TKMvar.tachie.PicData[tachieNum]["bitmap"][i] = null;
+									continue;
+								}
+								else {
+									$TKMvar.tachie.PicData[tachieNum]["bitmap"][i] = ImageManager.loadPicture(args[1] + "_" + $TKMvar.tachie.partsNameArr[i] + "_" + partList[i], 0);
+								}
+								
+							}*/
+							$TKMvar.tachie.preloadBitmap(tachieNum);
+							
+						}
+					}
+					break;
+					
+				case 'tachie_Draw':             // tachie_Draw [立ち絵番号] [オプション]
+					var tachieNum = parseInt(args[0], 10) || 0; // 立ち絵1か2か、それとも…
+					tachieNum--; // データ上は0から
+					if(tachieNum === -1) break;
+					if($TKMvar.tachie.PicData.length <= tachieNum) break;
+					if(!$TKMvar.tachie.PicData[tachieNum]["char"]) break;
+					
+					// 取得
+					var CharList = $TKMvar.tachie.CharList;
+					var MaxLayer = $TKMvar.tachie.MaxLayer;
+					var PicData = $TKMvar.tachie.PicData;
+					
+					var pictureId = PicData[tachieNum]["picNum"];
+					// ピクチャの名前を設定: "TKMtachie_[キャラ]_[すべてのパーツ番号]"
+					var char = PicData[tachieNum]["char"];
+					var name = "TKMtachie_" + char + "_";
+					var partList = CharList[char];
+					for(var i = 0; i < $TKMvar.tachie.MaxLayer; i++) {
+						name += partList[i];
+					}
+					var x = $TKMvar.tachie.PicData[tachieNum]["x"];
+					var y = $TKMvar.tachie.PicData[tachieNum]["y"];
+					// TODO
+					
+					// オプション
+					if(!args[1]) {
+					$gameScreen.showPicture(pictureId, name, 0, x, y, 85, 85, 255, 0);
+					}
+					else{
+						switch(args[1].toUpperCase()) {
+							case 'INV':
+							case 'INVISIBLE':
+								$gameScreen.showPicture(pictureId, name, 0, x, y, 85, 85, 0, 0);
+								break;
+							
+							default:
+								$gameScreen.showPicture(pictureId, name, 0, x, y, 85, 85, 255, 0);
+								break;
+						}
+					}
+					break;
+					
+				case 'tachie_Clear':            // tachie_Clear [立ち絵番号]
+					var tachieNum = parseInt(args[0], 10) || 0; // 立ち絵1か2か、それとも…
+					tachieNum--; // データ上は0から
+					if(tachieNum === -1) break;
+					if($TKMvar.tachie.PicData.length <= tachieNum) break;
+					
+					$gameScreen.erasePicture($TKMvar.tachie.PicData[tachieNum]["picNum"]);
+					// $TKMvar.tachie.PicData[tachieNum]["char"] = "";
+					break;
+			}
+		};
+	}
     
     
 })();
