@@ -863,8 +863,10 @@ function Filter_Controller() {
 	Filter_Controller.targetType["Parallax"] = "Parallax";
 	Filter_Controller.targetType["Chars"] = "Chars";
 	Filter_Controller.targetType["SepcificChar"] = "SepcificChar";
+	Filter_Controller.targetType["ExcludeSepcificChar"] = "ExcludeSepcificChar";
 	Filter_Controller.targetType["Pictures"] = "Pictures";
 	Filter_Controller.targetType["SpecificPicture"] = "SpecificPicture";
+	Filter_Controller.targetType["ExcludeSpecificPicture"] = "ExcludeSpecificPicture";
 
 	Filter_Controller.filterSpecialInit = {};
 	const _FSInit = Filter_Controller.filterSpecialInit;
@@ -1765,10 +1767,28 @@ function Filter_Controller() {
 			const targets = [];
 			if (!this._spriteset) return targets;
 			if (!this._spriteset._characterSprites) return targets;
-			
-			let charSprites = this._spriteset._characterSprites;
+
+			const charSprites = this._spriteset._characterSprites;
+			const defaultArrLength = _defaultCharSpriteArrayLength();
 			targetIds.forEach(targetId => {
-				targets.push(_getCharSpriteById(charSprites, targetId));
+				targets.push(_getCharSpriteById(charSprites, targetId, defaultArrLength));
+			});
+			return targets;
+		};
+
+		targetGetter[Type.ExcludeSepcificChar] = function(targetIds) {
+			if (!this._spriteset) return [];
+			if (!this._spriteset._characterSprites) return [];
+
+			const charSprites = this._spriteset._characterSprites;
+			const defaultArrLength = _defaultCharSpriteArrayLength();
+			const targets = charSprites.clone();
+			targetIds.forEach(targetId => {
+				const charSprite = _getCharSpriteById(charSprites, targetId, defaultArrLength);
+				const index = targets.indexOf(charSprite);
+				if (index >= 0) {
+					targets.splice(index, 1);
+				}
 			});
 			return targets;
 		};
@@ -1793,11 +1813,36 @@ function Filter_Controller() {
 			});
 			return targets;
 		};
+
+		targetGetter[Type.ExcludeSpecificPicture] = function(targetIds) {
+			if (!this._spriteset) return [];
+			if (!this._spriteset._pictureContainer) return [];
+
+			const picContainer = this._spriteset._pictureContainer.children;
+			const targets = picContainer.clone();
+			targetIds.forEach(targetId => {
+				let picId = $gameScreen.realPictureId(targetId);
+				if (picContainer[picId-1]) {
+					const index = targets.indexOf(picContainer[picId-1]);
+					if (index >= 0) {
+						targets.splice(index, 1);
+					}
+				}
+			});
+			return targets;
+		};
+	}
+	
+	const _defaultCharSpriteArrayLength = function() {
+		return $gameMap.events().length + $gameMap.vehicles().length 
+			+ $gamePlayer.followers()._data.length + 1; //player
 	}
 
-	const _getCharSpriteById = function(charSprites, id) {
+	const _getCharSpriteById = function(charSprites, id, length) {
+		if (length == null) length = charSprites.length;
+
 		if (id < 0) {
-			if (charSprites[charSprites.length+id]) return charSprites[charSprites.length+id];
+			if (charSprites[length+id]) return charSprites[length+id];
 		}
 		else if (id > 0) {
 			const maybeTarget = charSprites[id-1];
