@@ -840,6 +840,7 @@ function Filter_Controller() {
 		}
 		const num = Number(string);
 		if (isNaN(num) || num == null) return null;
+		if (isInteger) return Math.round(num);
 		return num;
 	};
 	
