@@ -7,6 +7,8 @@
 // For a copy, see <https://opensource.org/licenses/MIT>.
 // ----------------------------------------------------------------------------
 // Version
+// 1.1.0 2020/09/05 add new filter-target "ExcludeSpecificChar/Picture"
+//                  functionality: variables and random assignment to target-id
 // 0.9.1 2020/08/30 Fix some small bugs
 // 0.9.0 2020/08/25 FilterController MZ version
 //=============================================================================
