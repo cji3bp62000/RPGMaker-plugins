@@ -72,8 +72,10 @@
  * 背景　　　　　　　　　　：Parallax
  * 全キャラ　　　　　　　　：Chars
  * 特定キャラ（id）　　　　：SepcificChar
+ * 特定キャラ以外（id）　　：ExcludeSepcificChar
  * 全ピクチャ　　　　　　　：Pictures
  * 特定ピクチャ（id）　　　：SpecificPicture
+ * 特定ピクチャ以外（id）　：ExcludeSpecificPicture
  * 
  * 
  * プラグインコマンド一覧
@@ -90,7 +92,8 @@
  * ▶ 全フィルター削除
  * ▶ フィルター全体非表示設定
  * 
- * 各フィルターパラメータ設定には数値以外、変数代入やランダムもできます。
+ * 各フィルターパラメータや適用対象設定には数値以外、
+ * 変数代入やランダムもできます。
  * 　v1      ：変数１を代入
  * 　r0.5~1.5：0.5と1.5の間にランダム
  * 　r0.5~v1 ：0.5と変数１の間にランダム
@@ -195,10 +198,14 @@
  * @value Chars
  * @option 特定キャラ(id)
  * @value SepcificChar
+ * @option 特定キャラ以外(id)
+ * @value ExcludeSepcificChar
  * @option 全ピクチャ
  * @value Pictures
  * @option 特定ピクチャ(id)
  * @value SpecificPicture
+ * @option 特定ピクチャ以外(id)
+ * @value ExcludeSpecificPicture
  * 
  * @arg targetIds
  * @text 適用対象id
@@ -405,8 +412,10 @@
  * Parallax
  * Chars
  * SepcificChar
+ * ExcludeSepcificChar
  * Pictures
  * SpecificPicture
+ * ExcludeSpecificPicture
  * 
  * 
  * all plugin commands
@@ -423,8 +432,8 @@
  * ▶ eraseAllFilter
  * ▶ globalEnableFilter
  * 
- * Besides numbers, you can also set parameter by variable
- * or random between two numbers.
+ * Besides numbers, you can also set parameter/target-id
+ * by variable or random between two numbers.
  * 　v1       ：set as variable#1
  * 　r0.5~1.5 ：random between 0.5 and 1.5
  * 　r0.5~v1  ：random between 0.5 and variable#1
@@ -522,10 +531,14 @@
  * @value Chars
  * @option SepcificChar
  * @value SepcificChar
+ * @option ExcludeSepcificChar
+ * @value ExcludeSepcificChar
  * @option Pictures
  * @value Pictures
  * @option SpecificPicture
  * @value SpecificPicture
+ * @option ExcludeSpecificPicture
+ * @value ExcludeSpecificPicture
  * 
  * @arg targetIds
  * @desc when choosed "SpecificChar/Picture", specify the event/picture(s) id here. (multiple OK)
@@ -719,7 +732,7 @@ function Filter_Controller() {
 	 }
 	 
 	const parseTargetId = function(idText, interpreter) {
-		if (idText == "" || idText == null) return null;
+		if (idText === "" || idText == null) return null;
 		let id = Number(idText);
 		if (isNaN(id)) return null;
 
@@ -748,8 +761,8 @@ function Filter_Controller() {
 	};
 
 	const parseFilterPosRefId = function(text, interpreter) {
-		if (text == "") return null;
-		if (text == "screen") return 0; // 0 = filter-on-screen
+		if (text === "") return null;
+		if (text === "screen") return 0; // 0 = filter-on-screen
 		const num = parseNumberOrDefault(text, true);
 		return parseTargetId(num, interpreter);
 	}
