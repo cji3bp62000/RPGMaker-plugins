@@ -710,7 +710,10 @@ function Filter_Controller() {
 		const idTextArray = JSON.parse(idTextArrayText), targetIdArray = [];
 		for (let i = 0; i < idTextArray.length; i++) {
 			const num = parseNumberOrDefault(idTextArray[i], true);
-			targetIdArray.push(parseTargetId(num, interpreter));
+			const id = parseTargetId(num, interpreter);
+			if (id != null) {
+				targetIdArray.push(id);
+			}
 		}
 		return targetIdArray;
 	 }
