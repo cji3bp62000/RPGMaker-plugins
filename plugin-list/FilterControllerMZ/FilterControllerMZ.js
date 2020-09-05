@@ -1547,7 +1547,16 @@ function Filter_Controller() {
 			}
 		}
 	};
-	
+
+	const _DataManager_correctDataErrors = DataManager.correctDataErrors;
+	DataManager.correctDataErrors = function() {
+		_DataManager_correctDataErrors.apply(this, arguments);
+		// savedata compatibility
+		if ($gameMap._filterConArr == null) {
+			$gameMap._filterConArr = [];
+		}
+	};
+
 	//=======================
 	// Game_Map
 	//  note-tag filter creating.
