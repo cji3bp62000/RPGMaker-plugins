@@ -29,6 +29,8 @@
  * @param displacementImage
  * @text Displacement画像名
  * @desc 画像サイズを 2 のべき乗にして、img/pictures/ に入れてください。(512x512, 1024x1024など)
+ * @type file
+ * @dir img/pictures/
  * @default DisplacementMap
  * 
  * @param enabledAll-Settings
